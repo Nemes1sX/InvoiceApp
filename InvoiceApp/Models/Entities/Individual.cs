@@ -1,6 +1,6 @@
 ﻿namespace InvoiceApp.Models.Entities
 {
-    public abstract class Person : Entity
+    public class Individual : Entity
     {
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
