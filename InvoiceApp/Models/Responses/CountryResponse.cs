@@ -1,6 +1,6 @@
 ﻿namespace InvoiceApp.Models.Responses
 {
-    public class Country
+    public class CountryResponse
     {
         public string name { get; set; }
         public List<string> topLevelDomain { get; set; }

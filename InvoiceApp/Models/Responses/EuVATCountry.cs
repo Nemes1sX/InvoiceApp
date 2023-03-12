@@ -2,7 +2,7 @@
 {
     public class EuVATCountry
     {
-        public string CountryCode { get; set; }
+        public string? CountryCode { get; set; }
         public int VATRate { get; set; }
     }
 }
