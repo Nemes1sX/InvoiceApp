@@ -21,7 +21,7 @@ namespace InvoiceApp.Test
             var serviceProvider = new ServiceCollection().AddHttpClient().BuildServiceProvider();
             var httpClientFactory = serviceProvider.GetService<IHttpClientFactory>();
             new InvoiceSeeding(httpClientFactory, context).Seed();
-            _service = new InvoiceService();
+            _service = new InvoiceService(context);
         }
 
         [Test]
