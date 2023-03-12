@@ -2,11 +2,11 @@
 
 namespace InvoiceApp.Models.Entities
 {
-    public class OrderItem : Entity
+    public class InvoiceItem : Entity
     { 
         public int BasePrice { get; set; }
         public int Quantity { get; set; }
         public int PriceWithVAT { get; set; }
-        public Order? Order { get; set; }
+        public Invoice? Order { get; set; }
     }
 }
