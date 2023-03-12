@@ -69,6 +69,7 @@ namespace InvoiceApp.DataContext
             {
                 new Individual { FirstName = "Testas", LastName = "Testesnis", CountryId = 50},
                 new Individual { FirstName = "Petras", LastName = "Petraitis", CountryId = 17},
+                new Individual { FirstName = "Jonas", LastName = "Jonaitis", CountryId = 6},
             };
 
             if (_context.LegalPersons.Any())
@@ -80,6 +81,7 @@ namespace InvoiceApp.DataContext
             {
                 new LegalPerson {Name = "Testas", FirstName = "Testas", LastName = "Testenis", VATPayer = true, CountryId = 17 },
                 new LegalPerson {Name = "Silke", FirstName = "Jonas", LastName = "Jonaitis", VATPayer = false, CountryId = 5},
+                new LegalPerson {Name = "Ausis", FirstName = "Petras", LastName = "Petraite", VATPayer = true, CountryId = 5},
             };
 
             _context.Individuals.AddRange(individuals);
@@ -92,8 +94,8 @@ namespace InvoiceApp.DataContext
             {
                 return;
             }
-            var serviceProvider = new ServiceCollection().AddHttpClient().BuildServiceProvider();
-          
+
+            var serviceProvider = new ServiceCollection().AddHttpClient().BuildServiceProvider();        
             var client = _httpClientFactory.CreateClient("InvoiceSeeding");
             var mapper = serviceProvider.GetService<IMapper>();
             if (mapper == null)

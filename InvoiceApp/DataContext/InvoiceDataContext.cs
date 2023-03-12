@@ -24,8 +24,8 @@ namespace InvoiceApp.DataContext
         }
 
         public DbSet<Country> Countries { get; set; }
-        public DbSet<Order> Orders { get; set; }    
-        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<Invoice> Invoices { get; set; }    
+        public DbSet<InvoiceItem> InvoiceItems { get; set; }
         public DbSet<Individual> Individuals { get; set; }
         public DbSet<LegalPerson> LegalPersons { get; set;}
     }
