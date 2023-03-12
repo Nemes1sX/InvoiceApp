@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33103.184
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvoiceApp", "InvoiceApp\InvoiceApp.csproj", "{B0E9E49F-B669-405B-8E2F-3AF78C473E80}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InvoiceApp", "InvoiceApp\InvoiceApp.csproj", "{B0E9E49F-B669-405B-8E2F-3AF78C473E80}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvoiceApp.Test", "InvoiceApp.Test\InvoiceApp.Test.csproj", "{4EFB0B10-1751-4F4E-B6EE-65469F931632}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{B0E9E49F-B669-405B-8E2F-3AF78C473E80}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0E9E49F-B669-405B-8E2F-3AF78C473E80}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0E9E49F-B669-405B-8E2F-3AF78C473E80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4EFB0B10-1751-4F4E-B6EE-65469F931632}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EFB0B10-1751-4F4E-B6EE-65469F931632}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EFB0B10-1751-4F4E-B6EE-65469F931632}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EFB0B10-1751-4F4E-B6EE-65469F931632}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
