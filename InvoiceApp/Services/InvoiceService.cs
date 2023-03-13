@@ -1,22 +1,34 @@
-﻿using InvoiceApp.DataContext;
+﻿using AutoMapper;
+using InvoiceApp.DataContext;
+using InvoiceApp.Models.Dtos;
 using InvoiceApp.Models.Entities;
 using InvoiceApp.Models.FormRequests;
 using Microsoft.EntityFrameworkCore;
 
 namespace InvoiceApp.Services
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class InvoiceService : IInvoiceService
     {
         private readonly InvoiceDataContext _context;
         private readonly IInvoiceItemService _invoiceItemService;
+        private readonly IMapper _mapper;
 
-        public InvoiceService(InvoiceDataContext context, IInvoiceItemService invoiceItemService)
+        public InvoiceService(InvoiceDataContext context, IInvoiceItemService invoiceItemService, IMapper mapper)
         {
             _context = context;
             _invoiceItemService = invoiceItemService;
+            _mapper = mapper;
         }
 
-        public async Task<Invoice> IssueInvoice(InvoiceRequest invoiceRequest)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="invoiceRequest"></param>
+        /// <returns></returns>
+        public async Task<InvoiceDto> IssueInvoice(InvoiceRequest invoiceRequest)
         {
             var invoice = new Invoice();
             invoice.BilledLegalPersonId = invoiceRequest.BilledByLegalPersonId;
@@ -41,7 +53,7 @@ namespace InvoiceApp.Services
             await _context.Invoices.AddAsync(invoice);
             await _context.SaveChangesAsync();
 
-            return invoice;
+            return _mapper.Map<InvoiceDto>(invoice);
         }
 
         private async Task IssueInvoicePayedLegalPerson(Invoice invoice, List<InvoiceItemRequest> invoiceItemRequests, LegalPerson billedLegalPerson)

@@ -1,10 +1,14 @@
-﻿using InvoiceApp.Models.Entities;
+﻿using InvoiceApp.Models.Dtos;
 using InvoiceApp.Models.FormRequests;
 
 namespace InvoiceApp.Services
 {
+    /// <summary>
+    /// Invoice service interface
+    /// </summary>
     public interface IInvoiceService
     {
-        Task<Invoice> IssueInvoice(InvoiceRequest invoiceRequest);
+
+        Task<InvoiceDto> IssueInvoice(InvoiceRequest invoiceRequest);
     }
 }
