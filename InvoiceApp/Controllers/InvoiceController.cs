@@ -10,12 +10,20 @@ namespace InvoiceApp.Controllers
     public class InvoiceController : ControllerBase
     {
         private readonly IInvoiceService _invoiceService;
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="invoiceService"></param>
         public InvoiceController(IInvoiceService invoiceService)
         {
             _invoiceService = invoiceService;
         }
 
+        /// <summary>
+        /// Issue invoice
+        /// </summary>
+        /// <param name="invoiceRequest"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("issue")]
         public async Task<IActionResult> IssueInvoice(InvoiceRequest invoiceRequest)
