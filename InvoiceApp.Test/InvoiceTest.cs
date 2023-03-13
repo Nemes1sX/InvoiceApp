@@ -1,4 +1,6 @@
+using AutoMapper;
 using InvoiceApp.DataContext;
+using InvoiceApp.Infrastructure;
 using InvoiceApp.Models.FormRequests;
 using InvoiceApp.Services;
 using Microsoft.EntityFrameworkCore;
@@ -8,11 +10,11 @@ namespace InvoiceApp.Test
 {
     public class InvoiceTest
     {
-      private DbContextOptions<InvoiceDataContext> dbContext = new DbContextOptionsBuilder<InvoiceDataContext>()
-     .UseInMemoryDatabase(databaseName: "TestDb")
-     .Options;
-        private InvoiceService _service;   
-
+        private DbContextOptions<InvoiceDataContext> dbContext = new DbContextOptionsBuilder<InvoiceDataContext>()
+        .UseInMemoryDatabase(databaseName: "TestDb")
+        .Options;
+        private InvoiceService _service;
+        private IMapper _mapper;
 
         [SetUp]
         public void Setup()
@@ -21,7 +23,16 @@ namespace InvoiceApp.Test
             var serviceProvider = new ServiceCollection().AddHttpClient().BuildServiceProvider();
             var httpClientFactory = serviceProvider.GetService<IHttpClientFactory>();
             new InvoiceSeeding(httpClientFactory, context).Seed();
-            _service = new InvoiceService(context, new InvoiceItemService());
+            if (_mapper == null)
+            {
+                var mappingConfig = new MapperConfiguration(mc =>
+                {
+                    mc.AddProfile(new MappingProfile());
+                });
+                IMapper mapper = mappingConfig.CreateMapper();
+                _mapper = mapper;
+            }
+            _service = new InvoiceService(context, new InvoiceItemService(), _mapper);
         }
 
         [Test]
@@ -41,7 +52,7 @@ namespace InvoiceApp.Test
             var invoice = await _service.IssueInvoice(invoiceRequest);
 
             //Assert
-            Assert.AreEqual(1, invoice.TotalPrice / 100m);
+            Assert.AreEqual(1, invoice.TotalPrice);
         }
 
         [Test]
@@ -61,7 +72,7 @@ namespace InvoiceApp.Test
             var invoice = await _service.IssueInvoice(invoiceRequest);
 
             //Assert
-            Assert.AreEqual(1, invoice.TotalPrice / 100m);
+            Assert.AreEqual(1, invoice.TotalPrice);
         }
 
         [Test]
@@ -81,7 +92,7 @@ namespace InvoiceApp.Test
             var invoice = await _service.IssueInvoice(invoiceRequest);
 
             //Assert
-            Assert.AreEqual(1.19, invoice.TotalPrice / 100m);
+            Assert.AreEqual(1.19, invoice.TotalPrice);
         }
 
         [Test]
@@ -101,7 +112,7 @@ namespace InvoiceApp.Test
             var invoice = await _service.IssueInvoice(invoiceRequest);
 
             //Assert
-            Assert.AreEqual(1.21, invoice.TotalPrice  / 100m);
+            Assert.AreEqual(1.21, invoice.TotalPrice);
         }
     }
 }
