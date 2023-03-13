@@ -10,7 +10,7 @@ namespace InvoiceApp.Models.FormRequests.Rules
             var invoiceRequest = (InvoiceRequest) validationContext.ObjectInstance;
             var _db = (InvoiceDataContext)validationContext.GetService(typeof(InvoiceDataContext));
 
-            var legalPerson = _db.LegalPersons.Find(invoiceRequest.BilledByLegalPersonId);
+            var legalPerson = _db.LegalPersons.SingleOrDefault(x => x.Id == invoiceRequest.BilledByLegalPersonId);
 
             return legalPerson == null 
                 ? new ValidationResult("Legal person doesn't exist")
