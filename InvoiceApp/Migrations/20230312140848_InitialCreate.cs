@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -71,56 +72,57 @@ namespace InvoiceApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Orders",
+                name: "Invoices",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     TotalPrice = table.Column<int>(type: "int", nullable: false),
-                    LegalPersonId = table.Column<int>(type: "int", nullable: false),
-                    PayerLegalLegalPersonId = table.Column<int>(type: "int", nullable: true),
-                    PayerIndividualId = table.Column<int>(type: "int", nullable: true),
-                    PayerLegalPersonId = table.Column<int>(type: "int", nullable: true)
+                    BilledLegalPersonId = table.Column<int>(type: "int", nullable: false),
+                    PayedLegalPersonId = table.Column<int>(type: "int", nullable: true),
+                    PayedIndividualId = table.Column<int>(type: "int", nullable: true),
+                    IssueDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Orders", x => x.Id);
+                    table.PrimaryKey("PK_Invoices", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Orders_Individuals_PayerIndividualId",
-                        column: x => x.PayerIndividualId,
+                        name: "FK_Invoices_Individuals_PayedIndividualId",
+                        column: x => x.PayedIndividualId,
                         principalTable: "Individuals",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Orders_LegalPersons_LegalPersonId",
-                        column: x => x.LegalPersonId,
+                        name: "FK_Invoices_LegalPersons_BilledLegalPersonId",
+                        column: x => x.BilledLegalPersonId,
                         principalTable: "LegalPersons",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Orders_LegalPersons_PayerLegalPersonId",
-                        column: x => x.PayerLegalPersonId,
+                        name: "FK_Invoices_LegalPersons_PayedLegalPersonId",
+                        column: x => x.PayedLegalPersonId,
                         principalTable: "LegalPersons",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "OrderItems",
+                name: "InvoiceItems",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BasePrice = table.Column<int>(type: "int", nullable: false),
+                    TotalItemPrice = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     PriceWithVAT = table.Column<int>(type: "int", nullable: false),
-                    OrderId = table.Column<int>(type: "int", nullable: true)
+                    InvoiceId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OrderItems", x => x.Id);
+                    table.PrimaryKey("PK_InvoiceItems", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_OrderItems_Orders_OrderId",
-                        column: x => x.OrderId,
-                        principalTable: "Orders",
+                        name: "FK_InvoiceItems_Invoices_InvoiceId",
+                        column: x => x.InvoiceId,
+                        principalTable: "Invoices",
                         principalColumn: "Id");
                 });
 
@@ -130,39 +132,39 @@ namespace InvoiceApp.Migrations
                 column: "CountryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_InvoiceItems_InvoiceId",
+                table: "InvoiceItems",
+                column: "InvoiceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Invoices_BilledLegalPersonId",
+                table: "Invoices",
+                column: "BilledLegalPersonId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Invoices_PayedIndividualId",
+                table: "Invoices",
+                column: "PayedIndividualId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Invoices_PayedLegalPersonId",
+                table: "Invoices",
+                column: "PayedLegalPersonId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_LegalPersons_CountryId",
                 table: "LegalPersons",
                 column: "CountryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_OrderItems_OrderId",
-                table: "OrderItems",
-                column: "OrderId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Orders_LegalPersonId",
-                table: "Orders",
-                column: "LegalPersonId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Orders_PayerIndividualId",
-                table: "Orders",
-                column: "PayerIndividualId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Orders_PayerLegalPersonId",
-                table: "Orders",
-                column: "PayerLegalPersonId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "OrderItems");
+                name: "InvoiceItems");
 
             migrationBuilder.DropTable(
-                name: "Orders");
+                name: "Invoices");
 
             migrationBuilder.DropTable(
                 name: "Individuals");

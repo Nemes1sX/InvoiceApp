@@ -71,6 +71,70 @@ namespace InvoiceApp.Migrations
                     b.ToTable("Individuals");
                 });
 
+            modelBuilder.Entity("InvoiceApp.Models.Entities.Invoice", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BilledLegalPersonId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("IssueDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("PayedIndividualId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PayedLegalPersonId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalPrice")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BilledLegalPersonId");
+
+                    b.HasIndex("PayedIndividualId");
+
+                    b.HasIndex("PayedLegalPersonId");
+
+                    b.ToTable("Invoices");
+                });
+
+            modelBuilder.Entity("InvoiceApp.Models.Entities.InvoiceItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BasePrice")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("InvoiceId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PriceWithVAT")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalItemPrice")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.ToTable("InvoiceItems");
+                });
+
             modelBuilder.Entity("InvoiceApp.Models.Entities.LegalPerson", b =>
                 {
                     b.Property<int>("Id")
@@ -101,67 +165,6 @@ namespace InvoiceApp.Migrations
                     b.ToTable("LegalPersons");
                 });
 
-            modelBuilder.Entity("InvoiceApp.Models.Entities.Order", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("LegalPersonId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("PayerIndividualId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("PayerLegalLegalPersonId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("PayerLegalPersonId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TotalPrice")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LegalPersonId");
-
-                    b.HasIndex("PayerIndividualId");
-
-                    b.HasIndex("PayerLegalPersonId");
-
-                    b.ToTable("Orders");
-                });
-
-            modelBuilder.Entity("InvoiceApp.Models.Entities.OrderItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BasePrice")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("OrderId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PriceWithVAT")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("OrderItems");
-                });
-
             modelBuilder.Entity("InvoiceApp.Models.Entities.Individual", b =>
                 {
                     b.HasOne("InvoiceApp.Models.Entities.Country", "Country")
@@ -171,6 +174,38 @@ namespace InvoiceApp.Migrations
                         .IsRequired();
 
                     b.Navigation("Country");
+                });
+
+            modelBuilder.Entity("InvoiceApp.Models.Entities.Invoice", b =>
+                {
+                    b.HasOne("InvoiceApp.Models.Entities.LegalPerson", "BilledLegalPerson")
+                        .WithMany()
+                        .HasForeignKey("BilledLegalPersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("InvoiceApp.Models.Entities.Individual", "PayedIndividual")
+                        .WithMany()
+                        .HasForeignKey("PayedIndividualId");
+
+                    b.HasOne("InvoiceApp.Models.Entities.LegalPerson", "PayedLegalPerson")
+                        .WithMany()
+                        .HasForeignKey("PayedLegalPersonId");
+
+                    b.Navigation("BilledLegalPerson");
+
+                    b.Navigation("PayedIndividual");
+
+                    b.Navigation("PayedLegalPerson");
+                });
+
+            modelBuilder.Entity("InvoiceApp.Models.Entities.InvoiceItem", b =>
+                {
+                    b.HasOne("InvoiceApp.Models.Entities.Invoice", "Invoice")
+                        .WithMany("InvoiceItems")
+                        .HasForeignKey("InvoiceId");
+
+                    b.Navigation("Invoice");
                 });
 
             modelBuilder.Entity("InvoiceApp.Models.Entities.LegalPerson", b =>
@@ -184,38 +219,6 @@ namespace InvoiceApp.Migrations
                     b.Navigation("Country");
                 });
 
-            modelBuilder.Entity("InvoiceApp.Models.Entities.Order", b =>
-                {
-                    b.HasOne("InvoiceApp.Models.Entities.LegalPerson", "LegalPerson")
-                        .WithMany()
-                        .HasForeignKey("LegalPersonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("InvoiceApp.Models.Entities.Individual", "PayerIndividual")
-                        .WithMany()
-                        .HasForeignKey("PayerIndividualId");
-
-                    b.HasOne("InvoiceApp.Models.Entities.LegalPerson", "PayerLegalPerson")
-                        .WithMany()
-                        .HasForeignKey("PayerLegalPersonId");
-
-                    b.Navigation("LegalPerson");
-
-                    b.Navigation("PayerIndividual");
-
-                    b.Navigation("PayerLegalPerson");
-                });
-
-            modelBuilder.Entity("InvoiceApp.Models.Entities.OrderItem", b =>
-                {
-                    b.HasOne("InvoiceApp.Models.Entities.Order", "Order")
-                        .WithMany("OrderItems")
-                        .HasForeignKey("OrderId");
-
-                    b.Navigation("Order");
-                });
-
             modelBuilder.Entity("InvoiceApp.Models.Entities.Country", b =>
                 {
                     b.Navigation("Individuals");
@@ -223,9 +226,9 @@ namespace InvoiceApp.Migrations
                     b.Navigation("LegalPersons");
                 });
 
-            modelBuilder.Entity("InvoiceApp.Models.Entities.Order", b =>
+            modelBuilder.Entity("InvoiceApp.Models.Entities.Invoice", b =>
                 {
-                    b.Navigation("OrderItems");
+                    b.Navigation("InvoiceItems");
                 });
 #pragma warning restore 612, 618
         }
