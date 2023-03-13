@@ -22,7 +22,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Version = "v1",
         Title = "Invoices",
-        Description = "An ASP.NET Core Web API for managing Films",
+        Description = "An ASP.NET Core Web API for issuing invoices",
         TermsOfService = new Uri("https://example.com/terms"),
         Contact = new OpenApiContact
         {
