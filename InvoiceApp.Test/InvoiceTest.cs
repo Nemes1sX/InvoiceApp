@@ -65,7 +65,7 @@ namespace InvoiceApp.Test
         }
 
         [Test]
-        public async Task InvoiceService_IssueInvoice_PayedIndividualOrLegalPersonAndBilledLegalPersonFromEUButFromDifferentCountries()
+        public async Task InvoiceService_IssueInvoice_PayedIndividualOrLegalPersonAndBilledLegalPersonFromEUButFromDifferentCountries() //19 precent VAT because billed legal person is from Cyprus in this case  
         {
             //Act
             var invoiceRequest = new InvoiceRequest();
@@ -85,7 +85,7 @@ namespace InvoiceApp.Test
         }
 
         [Test]
-        public async Task InvoiceService_IssueInvoice_PayedIndividualOrLegalPersonAndBilledLegalPersonFromEUButFromSameCountries()
+        public async Task InvoiceService_IssueInvoice_PayedIndividualOrLegalPersonAndBilledLegalPersonFromEUButFromSameCountries()  //21 precent VAT because billed legal person is from Lithuania in this case  
         {
             //Act
             var invoiceRequest = new InvoiceRequest();
