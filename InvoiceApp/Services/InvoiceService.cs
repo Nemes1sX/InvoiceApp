@@ -1,47 +1,42 @@
 ﻿using InvoiceApp.DataContext;
 using InvoiceApp.Models.Entities;
 using InvoiceApp.Models.FormRequests;
+using Microsoft.EntityFrameworkCore;
 
 namespace InvoiceApp.Services
 {
     public class InvoiceService : IInvoiceService
     {
         private readonly InvoiceDataContext _context;
+        private readonly IInvoiceItemService _invoiceItemService;
 
-        public InvoiceService(InvoiceDataContext context) 
+        public InvoiceService(InvoiceDataContext context, IInvoiceItemService invoiceItemService)
         {
-            _context = context;    
+            _context = context;
+            _invoiceItemService = invoiceItemService;
         }
 
         public async Task<Invoice> IssueInvoice(InvoiceRequest invoiceRequest)
         {
             var invoice = new Invoice();
-            var invoiceItemService = new InvoiceItemService();
             invoice.BilledLegalPersonId = invoiceRequest.BilledByLegalPersonId;
-            var billedLegalPerson = await _context.LegalPersons.FindAsync(invoice.BilledLegalPersonId);
+            var billedLegalPerson = await _context.LegalPersons.Where(x => x.Id == invoice.BilledLegalPersonId).Include(x => x.Country).FirstAsync();
             if (invoiceRequest.PayedByLegalPersonId != null)
             {
                 invoice.PayedLegalPersonId = invoiceRequest.PayedByLegalPersonId;
-                IssueInvoicePayedLegalPerson(invoice);
+                await IssueInvoicePayedLegalPerson(invoice, invoiceRequest.InvoiceItems, billedLegalPerson);
             }
-            else if (invoiceRequest.PayedByIndividualId != null) 
+            else if (invoiceRequest.PayedByIndividualId != null)
             {
                 invoice.PayedIndividualId = invoiceRequest.PayedByIndividualId;
+                await IssueInvoicePayedIndividual(invoice, invoiceRequest.InvoiceItems, billedLegalPerson);
             }
             else
             {
                 return null;
             }
 
-        
-            var payedIndividual = await _context.Individuals.FindAsync(invoice.PayedIndividualId);
-            if ((payedIndividual.Country.EuropeanUnion && payedIndividual != null) || (payedLegalPerson.Country.EuropeanUnion && payedLegalPerson != null))
-            {
-                invoice.InvoiceItems = invoiceItemService.CalculateItemTotalPrice(invoiceRequest.InvoiceItems, billedLegalPerson.Country.VATPrecent);
-            } else
-            {
-                invoice.InvoiceItems = invoiceItemService.CalculateItemTotalPrice(invoiceRequest.InvoiceItems, 0);
-            }
+            invoice.TotalPrice = invoice.InvoiceItems.Sum(x => x.PriceWithVAT);
 
             await _context.Invoices.AddAsync(invoice);
             await _context.SaveChangesAsync();
@@ -49,16 +44,30 @@ namespace InvoiceApp.Services
             return invoice;
         }
 
-        private Invoice IssueInvoicePayedLegalPerson(Invoice invoice)
+        private async Task IssueInvoicePayedLegalPerson(Invoice invoice, List<InvoiceItemRequest> invoiceItemRequests, LegalPerson billedLegalPerson)
         {
-            var payedLegalPerson = await _context.LegalPersons.FindAsync(invoice.PayedLegalPersonId);
-            if (payedLegalPerson.Country.EuropeanUnion)
+            var payedLegalPerson = await _context.LegalPersons.Where(x => x.Id == invoice.PayedLegalPersonId).Include(x => x.Country).FirstAsync();
+            if (payedLegalPerson.Country.EuropeanUnion && billedLegalPerson.VATPayer)
             {
-                invoice.InvoiceItems = invoiceItemService.CalculateItemTotalPrice(invoiceRequest.InvoiceItems, billedLegalPerson.Country.VATPrecent);
+                invoice.InvoiceItems = _invoiceItemService.CalculateItemTotalPrice(invoiceItemRequests, billedLegalPerson.Country.VATPrecent);
             }
             else
             {
-                invoice.InvoiceItems = invoiceItemService.CalculateItemTotalPrice(invoiceRequest.InvoiceItems, 0);
+                invoice.InvoiceItems = _invoiceItemService.CalculateItemTotalPrice(invoiceItemRequests, 0);
+            }
+        }
+
+
+        private async Task IssueInvoicePayedIndividual(Invoice invoice, List<InvoiceItemRequest> invoiceItemRequests, LegalPerson billedLegalPerson)
+        {
+            var payedIndividual = await _context.Individuals.Where(x => x.Id == invoice.PayedIndividualId).Include(x => x.Country).FirstAsync();
+            if (payedIndividual.Country.EuropeanUnion && billedLegalPerson.VATPayer)
+            {
+                invoice.InvoiceItems = _invoiceItemService.CalculateItemTotalPrice(invoiceItemRequests, billedLegalPerson.Country.VATPrecent);
+            }
+            else
+            {
+                invoice.InvoiceItems = _invoiceItemService.CalculateItemTotalPrice(invoiceItemRequests, 0);
             }
         }
     }

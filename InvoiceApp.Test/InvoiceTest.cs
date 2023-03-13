@@ -21,7 +21,7 @@ namespace InvoiceApp.Test
             var serviceProvider = new ServiceCollection().AddHttpClient().BuildServiceProvider();
             var httpClientFactory = serviceProvider.GetService<IHttpClientFactory>();
             new InvoiceSeeding(httpClientFactory, context).Seed();
-            _service = new InvoiceService(context);
+            _service = new InvoiceService(context, new InvoiceItemService());
         }
 
         [Test]
@@ -41,11 +41,11 @@ namespace InvoiceApp.Test
             var invoice = await _service.IssueInvoice(invoiceRequest);
 
             //Assert
-            Assert.AreEqual(1, invoice.TotalPrice);
+            Assert.AreEqual(1, invoice.TotalPrice / 100m);
         }
 
         [Test]
-        public async Task InvoiceService_IssueInvoice_IndividualNonEU()
+        public async Task InvoiceService_IssueInvoice_PayedIndividualOrLegalPersonNonEU()
         {
             //Act
             var invoiceRequest = new InvoiceRequest();
@@ -61,11 +61,11 @@ namespace InvoiceApp.Test
             var invoice = await _service.IssueInvoice(invoiceRequest);
 
             //Assert
-            Assert.AreEqual(1, invoice.TotalPrice);
+            Assert.AreEqual(1, invoice.TotalPrice / 100m);
         }
 
         [Test]
-        public async Task InvoiceService_IssueInvoice_IndividualAndLegalPersonFromEUButFromDifferentCountries()
+        public async Task InvoiceService_IssueInvoice_PayedIndividualOrLegalPersonAndBilledLegalPersonFromEUButFromDifferentCountries()
         {
             //Act
             var invoiceRequest = new InvoiceRequest();
@@ -81,11 +81,11 @@ namespace InvoiceApp.Test
             var invoice = await _service.IssueInvoice(invoiceRequest);
 
             //Assert
-            Assert.AreEqual(1.05, invoice.TotalPrice);
+            Assert.AreEqual(1.19, invoice.TotalPrice / 100m);
         }
 
         [Test]
-        public async Task InvoiceService_IssueInvoice_IndividualAndLegalPersonFromEUButFromSameCountries()
+        public async Task InvoiceService_IssueInvoice_PayedIndividualOrLegalPersonAndBilledLegalPersonFromEUButFromSameCountries()
         {
             //Act
             var invoiceRequest = new InvoiceRequest();
@@ -101,7 +101,7 @@ namespace InvoiceApp.Test
             var invoice = await _service.IssueInvoice(invoiceRequest);
 
             //Assert
-            Assert.AreEqual(1.21, invoice.TotalPrice);
+            Assert.AreEqual(1.21, invoice.TotalPrice  / 100m);
         }
     }
 }
