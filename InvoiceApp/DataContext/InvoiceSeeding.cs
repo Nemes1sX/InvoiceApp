@@ -95,7 +95,13 @@ namespace InvoiceApp.DataContext
                 return;
             }
 
-            var serviceProvider = new ServiceCollection().AddHttpClient().BuildServiceProvider();        
+            var serviceProvider = new ServiceCollection().AddHttpClient().BuildServiceProvider();
+            var config = new ConfigurationBuilder()
+              .SetBasePath(Directory.GetCurrentDirectory())
+              .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+              .AddEnvironmentVariables()
+              .Build();
+            var url = config.GetValue<string>("UrlSettings:CountriesApiUrl");
             var client = _httpClientFactory.CreateClient("InvoiceSeeding");
             var mapper = serviceProvider.GetService<IMapper>();
             if (mapper == null)
@@ -107,11 +113,11 @@ namespace InvoiceApp.DataContext
                 mapper = mappingConfig.CreateMapper();
             }
 
-            var EUCountriesResponse = SeedEUCountries(client);
-            var africaCountries = SeedAfricaCountries(client, mapper);
-            var asiaCountries = SeedAsiaCountries(client, mapper);
-            var americasCountries = SeedAmericasCountries(client, mapper);
-            var australiaCountries = SeedAustraliaCountries(client, mapper);
+            var EUCountriesResponse = SeedEUCountries(client, url);
+            var africaCountries = SeedAfricaCountries(client, mapper, url);
+            var asiaCountries = SeedAsiaCountries(client, mapper, url);
+            var americasCountries = SeedAmericasCountries(client, mapper, url);
+            var australiaCountries = SeedAustraliaCountries(client, mapper, url);
             var EUCountries = MapEUCountries(EUCountriesResponse);
 
             _context.Countries.AddRange(EUCountries);
@@ -121,34 +127,34 @@ namespace InvoiceApp.DataContext
             _context.Countries.AddRange(australiaCountries);
         }
 
-        private List<CountryResponse> SeedEUCountries(HttpClient client)
+        private List<CountryResponse> SeedEUCountries(HttpClient client, string url)
         {
-            var response = client.GetFromJsonAsync<List<CountryResponse>>("https://restcountries.com/v2/regionalbloc/EU").GetAwaiter().GetResult();
-            var result = response.Where(x => x.independent == true).ToList();
+            var response = client.GetFromJsonAsync<List<CountryResponse>>(url + "albloc/EU").GetAwaiter().GetResult();
+            var result = response.Where(x => x.independent).ToList();
             return result;
         }
 
-        private List<Country> SeedAmericasCountries(HttpClient client, IMapper mapper)
+        private List<Country> SeedAmericasCountries(HttpClient client, IMapper mapper, string url)
         {
-            var response = client.GetFromJsonAsync<List<CountryResponse>>("https://restcountries.com/v2/region/americas").GetAwaiter().GetResult();
+            var response = client.GetFromJsonAsync<List<CountryResponse>>(url + "/americas").GetAwaiter().GetResult();
             var americaCountries = mapper.Map<List<Country>>(response);
             return americaCountries;
         }
-        private List<Country> SeedAsiaCountries(HttpClient client, IMapper mapper)
+        private List<Country> SeedAsiaCountries(HttpClient client, IMapper mapper, string url)
         {
-            var response = client.GetFromJsonAsync<List<CountryResponse>>("https://restcountries.com/v2/region/asia").GetAwaiter().GetResult();
+            var response = client.GetFromJsonAsync<List<CountryResponse>>(url + "/asia").GetAwaiter().GetResult();
             var asiaCountries = mapper.Map<List<Country>>(response);
             return asiaCountries;
         }
-        private List<Country> SeedAfricaCountries(HttpClient client, IMapper mapper)
+        private List<Country> SeedAfricaCountries(HttpClient client, IMapper mapper, string url)
         {
-            var response = client.GetFromJsonAsync<List<CountryResponse>>("https://restcountries.com/v2/region/africa").GetAwaiter().GetResult();
+            var response = client.GetFromJsonAsync<List<CountryResponse>>(url + "/africa").GetAwaiter().GetResult();
             var africaCountries = mapper.Map<List<Country>>(response);
             return africaCountries;
         }
-        private List<Country> SeedAustraliaCountries(HttpClient client, IMapper mapper)
+        private List<Country> SeedAustraliaCountries(HttpClient client, IMapper mapper, string url)
         {
-            var response = client.GetFromJsonAsync<List<CountryResponse>>("https://restcountries.com/v2/region/oceania").GetAwaiter().GetResult();
+            var response = client.GetFromJsonAsync<List<CountryResponse>>(url + "/oceania").GetAwaiter().GetResult();
             var australiaCountries = mapper.Map<List<Country>>(response);
             return australiaCountries;
         }
