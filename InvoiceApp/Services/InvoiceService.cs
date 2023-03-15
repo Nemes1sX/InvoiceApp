@@ -36,12 +36,12 @@ namespace InvoiceApp.Services
             if (invoiceRequest.PayedByLegalPersonId != null && invoiceRequest.PayedByLegalPersonId > 0)
             {
                 invoice.PayedLegalPersonId = invoiceRequest.PayedByLegalPersonId;
-                await IssueInvoicePayedLegalPerson(invoice, invoiceRequest.InvoiceItems, billedLegalPerson);
+                await CalculateInvoiceItemsPayedByLegalPerson(invoice, invoiceRequest.InvoiceItems, billedLegalPerson);
             }
             else if (invoiceRequest.PayedByIndividualId != null && invoiceRequest.PayedByIndividualId > 0)
             {
                 invoice.PayedIndividualId = invoiceRequest.PayedByIndividualId;
-                await IssueInvoicePayedIndividual(invoice, invoiceRequest.InvoiceItems, billedLegalPerson);
+                await CalculateInvoiceItemsPayedByIndividual(invoice, invoiceRequest.InvoiceItems, billedLegalPerson);
             }
             else
             {
@@ -49,14 +49,15 @@ namespace InvoiceApp.Services
             }
 
             invoice.TotalPrice = invoice.InvoiceItems.Sum(x => x.PriceWithVAT);
-
+            
             await _context.Invoices.AddAsync(invoice);
             await _context.SaveChangesAsync();
 
             return _mapper.Map<InvoiceDto>(invoice);
         }
 
-        private async Task IssueInvoicePayedLegalPerson(Invoice invoice, List<InvoiceItemRequest> invoiceItemRequests, LegalPerson billedLegalPerson)
+
+        private async Task CalculateInvoiceItemsPayedByLegalPerson(Invoice invoice, List<InvoiceItemRequest> invoiceItemRequests, LegalPerson billedLegalPerson)
         {
             var payedLegalPerson = await _context.LegalPersons.Where(x => x.Id == invoice.PayedLegalPersonId).Include(x => x.Country).SingleOrDefaultAsync();
             if (payedLegalPerson.Country.EuropeanUnion && billedLegalPerson.VATPayer)
@@ -70,7 +71,7 @@ namespace InvoiceApp.Services
         }
 
 
-        private async Task IssueInvoicePayedIndividual(Invoice invoice, List<InvoiceItemRequest> invoiceItemRequests, LegalPerson billedLegalPerson)
+        private async Task CalculateInvoiceItemsPayedByIndividual(Invoice invoice, List<InvoiceItemRequest> invoiceItemRequests, LegalPerson billedLegalPerson)
         {
             var payedIndividual = await _context.Individuals.Where(x => x.Id == invoice.PayedIndividualId).Include(x => x.Country).SingleOrDefaultAsync();
             if (payedIndividual.Country.EuropeanUnion && billedLegalPerson.VATPayer)
