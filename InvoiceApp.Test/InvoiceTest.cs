@@ -22,7 +22,7 @@ namespace InvoiceApp.Test
             var context = new InvoiceDataContext(dbContext);
             var serviceProvider = new ServiceCollection().AddHttpClient().BuildServiceProvider();
             var httpClientFactory = serviceProvider.GetService<IHttpClientFactory>();
-            new InvoiceSeeding(httpClientFactory, context).Seed();
+            SeedDatabase(context, httpClientFactory);
             if (_mapper == null)
             {
                 var mappingConfig = new MapperConfiguration(mc =>
@@ -45,7 +45,7 @@ namespace InvoiceApp.Test
                 new InvoiceItemRequest { Name = "Testas", ItemPrice = 1, Quantity = 1 }
             };
             invoiceRequest.BilledByLegalPersonId = 2;
-            invoiceRequest.PayedByIndividualId = 1;
+            invoiceRequest.PayedByIndividualId = 2;
             invoiceRequest.InvoiceItems = invoiceItemRequest;
 
             //Arrange
@@ -65,6 +65,26 @@ namespace InvoiceApp.Test
                 new InvoiceItemRequest { Name = "Testas", ItemPrice = 1, Quantity = 1 }
             };
             invoiceRequest.BilledByLegalPersonId = 1;
+            invoiceRequest.PayedByIndividualId = 1;
+            invoiceRequest.InvoiceItems = invoiceItemRequest;
+
+            //Arrange
+            var invoice = await _service.IssueInvoice(invoiceRequest);
+
+            //Assert
+            Assert.AreEqual(1, invoice.TotalPrice);
+        }
+
+        [Test]
+        public async Task InvoiceService_IssueInvoice_BilledLegalPersonNonVATPayerAndPayedIndividualOrLegalPersonNonEU()
+        {
+            //Act
+            var invoiceRequest = new InvoiceRequest();
+            var invoiceItemRequest = new List<InvoiceItemRequest>
+            {
+                new InvoiceItemRequest { Name = "Testas", ItemPrice = 1, Quantity = 1 }
+            };
+            invoiceRequest.BilledByLegalPersonId = 2;
             invoiceRequest.PayedByIndividualId = 1;
             invoiceRequest.InvoiceItems = invoiceItemRequest;
 
@@ -113,6 +133,13 @@ namespace InvoiceApp.Test
 
             //Assert
             Assert.AreEqual(1.21, invoice.TotalPrice);
+        }
+
+        private void SeedDatabase(InvoiceDataContext context, IHttpClientFactory httpClientFactory)
+        {
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+            new InvoiceSeeding(httpClientFactory, context).Seed();
         }
     }
 }
