@@ -2,22 +2,22 @@
 {
     public class CountryResponse
     {
-        public string name { get; set; }
-        public List<string> topLevelDomain { get; set; }
-        public string alpha2Code { get; set; }
-        public List<string> callingCodes { get; set; }
-        public string capital { get; set; }
-        public List<string> altSpellings { get; set; }
-        public string subregion { get; set; }
-        public string region { get; set; }
-        public int population { get; set; }
-        public List<double> latlng { get; set; }
-        public string demonym { get; set; }
-        public double area { get; set; }
-        public List<string> timezones { get; set; }
-        public string nativeName { get; set; }
-        public string numericCode { get; set; }
-        public string flag { get; set; }
-        public bool independent { get; set; }
+        public string Name { get; set; }
+        public List<string> TopLevelDomain { get; set; }
+        public string Alpha2Code { get; set; }
+        public List<string> CallingCodes { get; set; }
+        public string Capital { get; set; }
+        public List<string> AltSpellings { get; set; }
+        public string Subregion { get; set; }
+        public string Region { get; set; }
+        public int Population { get; set; }
+        public List<double> Latlng { get; set; }
+        public string Demonym { get; set; }
+        public double Area { get; set; }
+        public List<string> Timezones { get; set; }
+        public string NativeName { get; set; }
+        public string NumericCode { get; set; }
+        public string Flag { get; set; }
+        public bool Independent { get; set; }
     }
 }
