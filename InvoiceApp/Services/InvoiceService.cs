@@ -3,6 +3,7 @@ using InvoiceApp.DataContext;
 using InvoiceApp.Models.Dtos;
 using InvoiceApp.Models.Entities;
 using InvoiceApp.Models.FormRequests;
+using InvoiceApp.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace InvoiceApp.Services
@@ -12,14 +13,18 @@ namespace InvoiceApp.Services
     /// </summary>
     public class InvoiceService : IInvoiceService
     {
-        private readonly InvoiceDataContext _context;
+        private readonly IInvoiceRepository _invoiceRepository;
+        private readonly IIndividualRepository _individualRepository;
+        private readonly ILegalPersonRepository _legalPersonRepository;
         private readonly IInvoiceItemService _invoiceItemService;
         private readonly IMapper _mapper;
 
-        public InvoiceService(InvoiceDataContext context, IInvoiceItemService invoiceItemService, IMapper mapper)
+        public InvoiceService(IInvoiceRepository invoiceRepository, IInvoiceItemService invoiceItemService, IIndividualRepository individualRepository, ILegalPersonRepository legalPersonRepository, IMapper mapper)
         {
-            _context = context;
+            _invoiceRepository= invoiceRepository;
             _invoiceItemService = invoiceItemService;
+            _individualRepository = individualRepository;
+            _legalPersonRepository = legalPersonRepository;
             _mapper = mapper;
         }
 
@@ -32,7 +37,7 @@ namespace InvoiceApp.Services
         {
             var invoice = new Invoice();
             invoice.BilledLegalPersonId = invoiceRequest.BilledByLegalPersonId;
-            var billedLegalPerson = await _context.LegalPersons.Where(x => x.Id == invoice.BilledLegalPersonId).Include(x => x.Country).SingleOrDefaultAsync();
+            var billedLegalPerson = await _legalPersonRepository.GetLegalPersonWithCountry(invoiceRequest.BilledByLegalPersonId);
             if (invoiceRequest.PayedByLegalPersonId != null && invoiceRequest.PayedByLegalPersonId > 0)
             {
                 invoice.PayedLegalPersonId = invoiceRequest.PayedByLegalPersonId;
@@ -50,8 +55,7 @@ namespace InvoiceApp.Services
 
             invoice.TotalPrice = invoice.InvoiceItems.Sum(x => x.PriceWithVAT);
             
-            await _context.Invoices.AddAsync(invoice);
-            await _context.SaveChangesAsync();
+            await _invoiceRepository.AddInvoice(invoice);
 
             return _mapper.Map<InvoiceDto>(invoice);
         }
@@ -59,7 +63,7 @@ namespace InvoiceApp.Services
 
         private async Task CalculateInvoiceItemsPayedByLegalPerson(Invoice invoice, List<InvoiceItemRequest> invoiceItemRequests, LegalPerson billedLegalPerson)
         {
-            var payedLegalPerson = await _context.LegalPersons.Where(x => x.Id == invoice.PayedLegalPersonId).Include(x => x.Country).SingleOrDefaultAsync();
+            var payedLegalPerson = await _legalPersonRepository.GetLegalPersonWithCountry(invoice.PayedLegalPersonId);
             if (payedLegalPerson.Country.EuropeanUnion && billedLegalPerson.VATPayer)
             {
                 invoice.InvoiceItems = _invoiceItemService.CalculateItemTotalPrice(invoiceItemRequests, billedLegalPerson.Country.VATPrecent);
@@ -73,7 +77,7 @@ namespace InvoiceApp.Services
 
         private async Task CalculateInvoiceItemsPayedByIndividual(Invoice invoice, List<InvoiceItemRequest> invoiceItemRequests, LegalPerson billedLegalPerson)
         {
-            var payedIndividual = await _context.Individuals.Where(x => x.Id == invoice.PayedIndividualId).Include(x => x.Country).SingleOrDefaultAsync();
+            var payedIndividual = await _individualRepository.GetIndividualWithCountry(invoice.PayedIndividualId);
             if (payedIndividual.Country.EuropeanUnion && billedLegalPerson.VATPayer)
             {
                 invoice.InvoiceItems = _invoiceItemService.CalculateItemTotalPrice(invoiceItemRequests, billedLegalPerson.Country.VATPrecent);

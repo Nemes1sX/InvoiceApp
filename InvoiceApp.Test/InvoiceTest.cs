@@ -2,6 +2,7 @@ using AutoMapper;
 using InvoiceApp.DataContext;
 using InvoiceApp.Infrastructure;
 using InvoiceApp.Models.FormRequests;
+using InvoiceApp.Repositories;
 using InvoiceApp.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +33,7 @@ namespace InvoiceApp.Test
                 IMapper mapper = mappingConfig.CreateMapper();
                 _mapper = mapper;
             }
-            _service = new InvoiceService(context, new InvoiceItemService(), _mapper);
+            _service = new InvoiceService(new InvoiceRepository(context),  new InvoiceItemService(), new IndividualRepository(context), new LegalPersonRepository(context), _mapper);
         }
 
         [Test]
