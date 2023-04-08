@@ -1,4 +1,5 @@
 using InvoiceApp.DataContext;
+using InvoiceApp.Repositories;
 using InvoiceApp.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +17,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 builder.Services.AddScoped<IInvoiceItemService, InvoiceItemService>();
+builder.Services.AddScoped<IIndividualRepository, IndividualRepository>();
+builder.Services.AddScoped<ILegalPersonRepository, LegalPersonRepository>();
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo

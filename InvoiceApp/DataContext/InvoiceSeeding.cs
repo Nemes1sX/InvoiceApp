@@ -130,7 +130,7 @@ namespace InvoiceApp.DataContext
         private List<CountryResponse> SeedEUCountries(HttpClient client, string url)
         {
             var response = client.GetFromJsonAsync<List<CountryResponse>>(url + "albloc/EU").GetAwaiter().GetResult();
-            var result = response.Where(x => x.independent).ToList();
+            var result = response.Where(x => x.Independent).ToList();
             return result;
         }
 
@@ -166,10 +166,10 @@ namespace InvoiceApp.DataContext
             foreach (var result in countryResponses)
             {
                 var EUcountry = new Country();
-                EUcountry.Code = result.alpha2Code;
-                EUcountry.Name = result.name;
+                EUcountry.Code = result.Alpha2Code;
+                EUcountry.Name = result.Name;
                 EUcountry.EuropeanUnion = true;
-                var EuVATCountry = EuVATCountries.SingleOrDefault(x => x.CountryCode == result.alpha2Code);
+                var EuVATCountry = EuVATCountries.SingleOrDefault(x => x.CountryCode == result.Alpha2Code);
                 if (EuVATCountry != null)
                 {
                     EUcountry.VATPrecent = EuVATCountry.VATRate;
